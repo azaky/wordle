@@ -1,3 +1,29 @@
+# Wordle Solver
+
+This is a solver for [Wordle](https://www.powerlanguage.co.uk/wordle/). The UI is forked from [hannahcode/wordle](https://github.com/hannahcode/wordle).
+
+![](public/demo.gif)
+
+## How it works
+
+### Generating Possible Solutions
+
+It simply runs through [all the possible solutions](https://github.com/azaky/wordle/blob/main/src/constants/wordlist.ts) and check which ones satisfy the colors. There are "only" over 2000 words, so it can run pretty fast on the browser.
+
+### Generating Guess Suggestions
+
+It checks [all the possible valid words](https://github.com/azaky/wordle/blob/main/src/constants/validGuesses.ts) and calculate the following:
+
+- How many new unused characters it will unlock.
+- When we check the word against all the possible solutions, how many distinct combination
+  of colors there will be. In other words, in terms of [Decision Tree](https://en.wikipedia.org/wiki/Decision_tree), it will select the word with maximum information gain.
+
+---
+
+Original README below
+
+---
+
 # Wordle Clone
 
 - Go play the real Wordle [here](https://www.powerlanguage.co.uk/wordle/)
@@ -22,6 +48,7 @@ I implemented Tailwind mostly because I wanted to learn how to use Tailwind CSS,
 
 _To Run Locally:_
 Clone the repository and perform the following command line actions:
+
 ```bash
 $ cd wordle
 $ npm install
@@ -29,4 +56,5 @@ $ npm run start
 ```
 
 ### I'm looking for a junior developer role
+
 Please feel free to contact me on [linkedin](https://www.linkedin.com/in/hannahpark1000/) and learn more about me [here](https://www.hannahmariepark.com/)

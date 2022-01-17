@@ -57,6 +57,35 @@ export const getStatuses = (
   return charObj
 }
 
+export const getStatusesFromFeedbacks = (
+  guesses: string[],
+  feedbacks: CharStatus[][]
+): { [key: string]: CharStatus } => {
+  const charStatuses: { [key: string]: CharStatus } = {}
+
+  guesses.forEach((word, i) => {
+    word.split('').forEach((letter, j) => {
+      const feedback = feedbacks?.[i]?.[j]
+      if (feedback === 'correct') {
+        charStatuses[letter] = 'correct'
+        return
+      }
+      if (feedback === 'present') {
+        if (!charStatuses[letter]) {
+          charStatuses[letter] = 'present'
+        }
+        return
+      }
+      if (feedback === 'absent') {
+        if (!charStatuses[letter]) {
+          charStatuses[letter] = 'absent'
+        }
+      }
+    })
+  })
+  return charStatuses
+}
+
 export const getGuessStatuses = (guess: string): CharStatus[] => {
   const splitSolution = solution.split('')
   const splitGuess = guess.split('')

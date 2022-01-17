@@ -1,5 +1,5 @@
 import { KeyValue } from '../../lib/keyboard'
-import { getStatuses } from '../../lib/statuses'
+import { CharStatus, getStatusesFromFeedbacks } from '../../lib/statuses'
 import { Key } from './Key'
 import { useEffect } from 'react'
 
@@ -8,10 +8,17 @@ type Props = {
   onDelete: () => void
   onEnter: () => void
   guesses: string[]
+  feedbacks: CharStatus[][]
 }
 
-export const Keyboard = ({ onChar, onDelete, onEnter, guesses }: Props) => {
-  const charStatuses = getStatuses(guesses)
+export const Keyboard = ({
+  onChar,
+  onDelete,
+  onEnter,
+  guesses,
+  feedbacks,
+}: Props) => {
+  const charStatuses = getStatusesFromFeedbacks(guesses, feedbacks)
 
   const onClick = (value: KeyValue) => {
     if (value === 'ENTER') {

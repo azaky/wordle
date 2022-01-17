@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { Cell } from '../grid/Cell'
 import { XCircleIcon } from '@heroicons/react/outline'
+import { LightBulbIcon, RefreshIcon, ReplyIcon } from '@heroicons/react/solid'
 
 type Props = {
   isOpen: boolean
@@ -53,52 +53,75 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
                 />
               </div>
               <div>
-                <div className="text-center">
+                <div className="">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg leading-6 font-medium text-gray-900"
+                    className="text-lg leading-6 font-medium text-gray-900 text-center"
                   >
-                    How to play
+                    How to use the solver
                   </Dialog.Title>
-                  <div className="mt-2">
+                  <div className="mt-4">
                     <p className="text-sm text-gray-500">
-                      Guess the WORDLE in 6 tries. After each guess, the color
-                      of the tiles will change to show how close your guess was
-                      to the word.
+                      This solver can assist you in solving the{' '}
+                      <a
+                        href="https://www.powerlanguage.co.uk/wordle/"
+                        className="underline font-bold"
+                      >
+                        WORDLE
+                      </a>
+                      .
                     </p>
+                    <ul className="list-disc list-inside text-sm text-gray-500">
+                      <li>Type in your guess just like in the game.</li>
+                      <li>
+                        Click the tiles to change the color based on the result
+                        you get from WORDLE.
+                      </li>
+                      <li>
+                        Then, click enter to see possible solutions and get
+                        suggestions for your next guess.
+                      </li>
+                    </ul>
 
-                    <div className="flex justify-center mb-1 mt-4">
-                      <Cell value="W" status="correct" />
-                      <Cell value="E" />
-                      <Cell value="A" />
-                      <Cell value="R" />
-                      <Cell value="Y" />
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      The letter W is in the word and in the correct spot.
-                    </p>
+                    <img
+                      className="mt-4"
+                      src={`${process.env.PUBLIC_URL}/demo.gif`}
+                      alt="wordle solver"
+                    />
 
-                    <div className="flex justify-center mb-1 mt-4">
-                      <Cell value="P" />
-                      <Cell value="I" />
-                      <Cell value="L" status="present" />
-                      <Cell value="O" />
-                      <Cell value="T" />
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      The letter L is in the word but in the wrong spot.
+                    <p className="text-sm text-gray-500 mt-4">
+                      Here are some tips:
                     </p>
-
-                    <div className="flex justify-center mb-1 mt-4">
-                      <Cell value="V" />
-                      <Cell value="A" />
-                      <Cell value="G" />
-                      <Cell value="U" status="absent" />
-                      <Cell value="E" />
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      The letter U is not in the word in any spot.
-                    </p>
+                    <ul className="list-disc list-inside text-sm text-gray-500">
+                      <li>
+                        When you made any mistakes, you can always undo by
+                        clicking the{' '}
+                        <span>
+                          <ReplyIcon className="h-4 w-4 inline" />
+                        </span>{' '}
+                        icon above.
+                      </li>
+                      <li>
+                        Click the{' '}
+                        <span>
+                          <LightBulbIcon className="h-4 w-4 inline" />
+                        </span>{' '}
+                        icon above to see the possible solutions at any time.
+                      </li>
+                      <li>
+                        On the list of possible solutions and suggestions, you
+                        can click the word to set it as your next guess. Of
+                        course you still have to change the color based on the
+                        result from WORDLE.
+                      </li>
+                      <li>
+                        Click the{' '}
+                        <span>
+                          <RefreshIcon className="h-4 w-4 inline" />
+                        </span>{' '}
+                        icon above reset everything.
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>

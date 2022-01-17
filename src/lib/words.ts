@@ -1,6 +1,9 @@
 import { WORDS } from '../constants/wordlist'
 import { VALIDGUESSES } from '../constants/validGuesses'
 
+export const validGuesses: string[] = [...WORDS, ...VALIDGUESSES]
+export const validSolutions: string[] = [...WORDS]
+
 export const isWordInWordList = (word: string) => {
   return (
     WORDS.includes(word.toLowerCase()) ||
