@@ -140,6 +140,29 @@ const getHints = (
   }
 }
 
+const validFirstSuggestions = validSolutions.filter((word) => {
+  const charSet = new Set<string>()
+  word.split('').forEach((char) => {
+    charSet.add(char)
+  })
+  return charSet.size === 5
+})
+
+const randomShuffle = (array: string[]) => {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = shuffled[i]
+    shuffled[i] = shuffled[j]
+    shuffled[j] = temp
+  }
+  return shuffled
+}
+
+const getFirstSuggestions = (suggestionsLimit: number = 8) => {
+  return randomShuffle(validFirstSuggestions).slice(0, suggestionsLimit)
+}
+
 function App() {
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
@@ -192,13 +215,27 @@ function App() {
     empty: boolean = false,
     solutionsLimit: number = 20
   ) => {
+    const createButton = (word: string, key: number) => (
+      <div
+        onClick={() => setCurrentGuess(word.toUpperCase())}
+        key={key}
+        className="inline m-1 p-1 border border-transparent font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <strong className="font-mono">{word}</strong>
+      </div>
+    )
     toast.dismiss()
     if (empty) {
+      const firstSuggestions = getFirstSuggestions()
       toast(
         <div>
-          <span>
-            Please make some guesses before showing possible solutions
-          </span>
+          <div>Please make some guesses before showing possible solutions.</div>
+          <div className="mt-2">
+            <div>Try these as your first guess:</div>
+            <div className="flex flex-wrap leading-4">
+              {firstSuggestions.map((word, i) => createButton(word, i))}
+            </div>
+          </div>
         </div>
       )
     } else {
@@ -209,15 +246,6 @@ function App() {
       )
       const { solutions, suggestions } = hints
       if (solutions.length) {
-        const createButton = (word: string, key: number) => (
-          <div
-            onClick={() => setCurrentGuess(word.toUpperCase())}
-            key={key}
-            className="inline m-1 p-1 border border-transparent font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            <strong className="font-mono">{word}</strong>
-          </div>
-        )
         content = (
           <div>
             <div>
