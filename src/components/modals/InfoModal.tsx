@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
-import { LightBulbIcon, RefreshIcon, ReplyIcon } from '@heroicons/react/solid'
+import { LightBulbIcon, ReplyIcon } from '@heroicons/react/solid'
 
 type Props = {
   isOpen: boolean
@@ -115,11 +115,13 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
                         result from WORDLE.
                       </li>
                       <li>
-                        Click the{' '}
-                        <span>
-                          <RefreshIcon className="h-4 w-4 inline" />
-                        </span>{' '}
-                        icon above reset everything.
+                        <strong>
+                          This solver can be directly used to solve the hard
+                          mode as well!
+                        </strong>{' '}
+                        Just use one of the possible solutions as your next
+                        guess. They are all guaranteed to use all the revealed
+                        characters.
                       </li>
                     </ul>
                   </div>
