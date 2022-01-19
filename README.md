@@ -12,11 +12,11 @@ It simply runs through [all the possible solutions](https://github.com/azaky/wor
 
 ### Generating Guess Suggestions
 
-It checks [all the possible valid words](https://github.com/azaky/wordle/blob/main/src/constants/validGuesses.ts) and calculate the following:
+It checks [all the possible valid words](https://github.com/azaky/wordle/blob/main/src/constants/validGuesses.ts) and use [minimax algorithm](https://en.wikipedia.org/wiki/Minimax) to ensure that the worst case possible for the next response is the best one. In other words, it tries to reduce the maximum number of possible solutions on the next guess.
 
-- How many new unused characters it will unlock.
-- When we check the word against all the possible solutions, how many distinct combination
-  of colors there will be. In other words, in terms of [Decision Tree](https://en.wikipedia.org/wiki/Decision_tree), it will select the word with maximum information gain.
+On [Absurdle](https://qntm.org/files/wordle/index.html), it is almost guaranteed to solve in 5 moves.
+
+TODO: However, this approach is very CPU-intensive, especially for the early stage where the set of valid solutions are still large. It may take 2-4 seconds on early guesses.
 
 ---
 

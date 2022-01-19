@@ -17,6 +17,94 @@ import { ToastContainer, toast } from 'react-toastify'
 
 import 'react-toastify/dist/ReactToastify.css'
 
+// Determine suggestions for the next guess. Things to consider:
+// - minimize the max size of set of solutions after the next feedback
+// - words having the most distinct, unused characters
+const getSuggestions = (
+  solutions: string[],
+  charStatuses: { [key: string]: CharStatus },
+  suggestionsLimit: number,
+  deviation: { maxSolutionSize: number; unused: number } = {
+    maxSolutionSize: 3,
+    unused: 0,
+  }
+) => {
+  const suggestionsScore = validGuesses.map((word) => {
+    let unused = 0
+    let usedChars = new Set<string>()
+    word.split('').forEach((char) => {
+      if (usedChars.has(char)) {
+        return
+      }
+      usedChars.add(char)
+      if (!charStatuses[char.toUpperCase()]) {
+        unused++
+      }
+    })
+    let solutionsSize: number[] = []
+    solutions.forEach((solution) => {
+      let feedback = 0
+      let correctChar = new Set<string>()
+      let solutionChar = new Set<string>()
+      for (let i = 0; i < solution.length; i++) {
+        if (solution[i] === word[i]) {
+          feedback += 2 * 3 ** i
+          correctChar.add(word[i])
+        }
+        solutionChar.add(solution[i])
+      }
+      for (let i = 0; i < solution.length; i++) {
+        if (solution[i] !== word[i]) {
+          if (!correctChar.has(word[i]) && solutionChar.has(word[i])) {
+            feedback += 3 ** i
+          }
+        }
+      }
+      if (!solutionsSize[feedback]) {
+        solutionsSize[feedback] = 1
+      } else {
+        solutionsSize[feedback]++
+      }
+    })
+    let maxSolutionsSize = 0
+    for (let size of solutionsSize) {
+      if (size > maxSolutionsSize) {
+        maxSolutionsSize = size
+      }
+    }
+    return {
+      word,
+      unused,
+      maxSolutionsSize,
+    }
+  })
+  const sorted = suggestionsScore.sort((a, b) => {
+    if (a.maxSolutionsSize !== b.maxSolutionsSize) {
+      return a.maxSolutionsSize - b.maxSolutionsSize
+    }
+    if (a.unused !== b.unused) {
+      return b.unused - a.unused
+    }
+    return a.word.localeCompare(b.word)
+  })
+
+  const bestSuggestion = sorted[0]
+  const acceptableSuggestions = sorted.filter(
+    (s) =>
+      s.maxSolutionsSize - bestSuggestion.maxSolutionsSize <=
+        Math.min(deviation.maxSolutionSize, solutions.length / 10) &&
+      bestSuggestion.unused - s.unused <= deviation.unused
+  )
+
+  console.log({ suggestions: acceptableSuggestions })
+
+  const suggestions = acceptableSuggestions
+    .map((s) => s.word)
+    .slice(0, suggestionsLimit)
+
+  return suggestions
+}
+
 const getHints = (
   guesses: string[],
   feedbacks: CharStatus[][],
@@ -83,56 +171,7 @@ const getHints = (
   }
 
   const charStatuses = getStatusesFromFeedbacks(guesses, feedbacks)
-
-  // Determine suggestions for the next guess. Things to consider:
-  // - words having the most distinct, unused characters
-  // - differentiate the feedbacks on top few possible answers
-  // - prioritize words having most common characters
-  const suggestionsScore = validGuesses.map((word) => {
-    let unused = 0
-    let usedChars = new Set<string>()
-    word.split('').forEach((char) => {
-      if (usedChars.has(char)) {
-        return
-      }
-      usedChars.add(char)
-      if (!charStatuses[char.toUpperCase()]) {
-        unused++
-      }
-    })
-    let distinctFeedbacks = new Set<number>()
-    solutions.slice(0, 40).forEach((solution) => {
-      let feedback = 0
-      for (let i = 0; i < solution.length; i++) {
-        feedback *= 3
-        if (solution[i] === word[i]) {
-          feedback += 2
-        } else {
-          feedback += 1
-        }
-      }
-      distinctFeedbacks.add(feedback)
-    })
-    return { word, unused, distinctFeedbacks: distinctFeedbacks.size }
-  })
-  const sorted = suggestionsScore.sort((a, b) => {
-    if (a.unused !== b.unused) {
-      return b.unused - a.unused
-    }
-    if (a.distinctFeedbacks !== b.distinctFeedbacks) {
-      return b.distinctFeedbacks - a.distinctFeedbacks
-    }
-    return a.word.localeCompare(b.word)
-  })
-
-  const suggestions = sorted
-    .filter(
-      (s) =>
-        s.unused === sorted[0].unused &&
-        s.distinctFeedbacks === sorted[0].distinctFeedbacks
-    )
-    .slice(0, suggestionsLimit)
-    .map((s) => s.word)
+  const suggestions = getSuggestions(solutions, charStatuses, suggestionsLimit)
 
   return {
     solutions,
@@ -140,28 +179,17 @@ const getHints = (
   }
 }
 
-const validFirstSuggestions = validSolutions.filter((word) => {
-  const charSet = new Set<string>()
-  word.split('').forEach((char) => {
-    charSet.add(char)
-  })
-  return charSet.size === 5
-})
-
-const randomShuffle = (array: string[]) => {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const temp = shuffled[i]
-    shuffled[i] = shuffled[j]
-    shuffled[j] = temp
-  }
-  return shuffled
-}
-
-const getFirstSuggestions = (suggestionsLimit: number = 8) => {
-  return randomShuffle(validFirstSuggestions).slice(0, suggestionsLimit)
-}
+// This is too slow to run on each load, so we hardcode it instead
+// const validFirstSuggestions = getSuggestions(validSolutions, {}, 8)
+const validFirstSuggestions = [
+  'aesir',
+  'arise',
+  'raise',
+  'reais',
+  'serai',
+  'aiery',
+  'ayrie',
+]
 
 function App() {
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
@@ -172,6 +200,7 @@ function App() {
 
   const [currentGuess, setCurrentGuess] = useState('')
   const [guesses, setGuesses] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
 
   const emptyStatus = [
     'absent',
@@ -201,14 +230,33 @@ function App() {
   useEffect(() => {
     if (guesses.length === feedbacks.length) {
       if (!guesses.length) {
-        toast.dismiss()
+        toast.dismiss('hints')
       } else {
-        const hints = getHints(guesses, feedbacks)
-        setHints(hints)
-        showPossibleSolutions(hints)
+        setLoading(true)
+        // HACK: We need delay to let the toast show.
+        setTimeout(() => {
+          const hints = getHints(guesses, feedbacks)
+          setLoading(false)
+          setHints(hints)
+          showPossibleSolutions(hints)
+        }, 300)
       }
     }
   }, [guesses, feedbacks])
+
+  useEffect(() => {
+    if (loading) {
+      toast.loading('Calculating the solutions', {
+        toastId: 'loading',
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        draggable: false,
+      })
+    } else {
+      toast.dismiss('loading')
+    }
+  }, [loading])
 
   const showPossibleSolutions = (
     hints: { solutions: string[]; suggestions: string[] },
@@ -224,9 +272,9 @@ function App() {
         <strong className="font-mono">{word}</strong>
       </div>
     )
-    toast.dismiss()
+    toast.dismiss('hints')
     if (empty) {
-      const firstSuggestions = getFirstSuggestions()
+      const firstSuggestions = validFirstSuggestions
       toast(
         <div>
           <div>Please make some guesses before showing possible solutions.</div>
@@ -236,7 +284,10 @@ function App() {
               {firstSuggestions.map((word, i) => createButton(word, i))}
             </div>
           </div>
-        </div>
+        </div>,
+        {
+          toastId: 'hints',
+        }
       )
     } else {
       let content = (
@@ -276,6 +327,7 @@ function App() {
       }
       toast(content, {
         autoClose: false,
+        toastId: 'hints',
       })
     }
   }

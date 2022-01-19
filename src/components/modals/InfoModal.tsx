@@ -68,8 +68,14 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
                         className="underline font-bold"
                       >
                         WORDLE
-                      </a>
-                      .
+                      </a>{' '}
+                      or even the harder version,{' '}
+                      <a
+                        href="https://qntm.org/files/wordle/index.html"
+                        className="underline font-bold"
+                      >
+                        ABSURDLE
+                      </a>.
                     </p>
                     <ul className="list-disc list-inside text-sm text-gray-500">
                       <li>Type in your guess just like in the game.</li>
